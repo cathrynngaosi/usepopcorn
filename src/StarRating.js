@@ -38,7 +38,7 @@ export default function StarRating({
 
   const textSytle = {
     lineHeight: "1",
-    margin: "0",
+    margin: " 0 6px",
     color,
     fontSize: `${size / 1.5}px`,
   };
@@ -57,7 +57,7 @@ export default function StarRating({
             defaultRating={3}
           />
         ))}
-      </div>
+      </div>{" "}
       <p style={textSytle}>
         {messages.length === maxRating
           ? messages[tempRating ? tempRating - 1 : rating - 1]
