@@ -58,7 +58,7 @@ export default function App() {
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [query, setQuery] = useState("avengers");
+  const [query, setQuery] = useState("");
   const [selectedID, setSelectedID] = useState(null);
 
   function handleSelectMovie(id) {
@@ -77,12 +77,15 @@ export default function App() {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
   useEffect(() => {
+    const controller = new AbortController();
+
     async function fetchMovies() {
       try {
         setIsLoading(true);
         setError("");
         const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}}`
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}}`,
+          { signal: controller.signal }
         );
 
         if (!res.ok)
@@ -92,8 +95,11 @@ export default function App() {
         if (data.Response === "False") throw new Error("Movie not found");
 
         setMovies(data.Search);
+        setError("");
       } catch (err) {
-        setError(err.message);
+        if (err.name !== "AbortError") {
+          setError(err.message);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -105,7 +111,13 @@ export default function App() {
     }
 
     fetchMovies();
+
+    return function () {
+      controller.abort();
+    };
   }, [query]);
+
+  use;
 
   return (
     <>
@@ -286,6 +298,15 @@ function MovieDetails({ selectedID, onCloseMovie, onAddWatched, watched }) {
     }
     getMovieDetails();
   }, [selectedID]);
+
+  useEffect(() => {
+    if (!title) return;
+    document.title = `Movie |  ${title}`;
+
+    return function () {
+      document.title = "usePopcorn";
+    };
+  }, [title]);
 
   return (
     <div className="details">
