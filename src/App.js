@@ -109,15 +109,13 @@ export default function App() {
       setError("");
       return;
     }
-
+    handleCloseMovie();
     fetchMovies();
 
     return function () {
       controller.abort();
     };
   }, [query]);
-
-  use;
 
   return (
     <>
@@ -255,7 +253,6 @@ function MovieDetails({ selectedID, onCloseMovie, onAddWatched, watched }) {
   const watchedUserRating = watched.find(
     (movie) => movie.imdbID === selectedID
   )?.userRating;
-  console.log(isWatched);
 
   const {
     Title: title,
@@ -270,8 +267,6 @@ function MovieDetails({ selectedID, onCloseMovie, onAddWatched, watched }) {
     Genre: genre,
   } = movie;
 
-  console.log(movie);
-
   function handleAdd() {
     const newWatchedMovie = {
       imdbID: selectedID,
@@ -285,6 +280,19 @@ function MovieDetails({ selectedID, onCloseMovie, onAddWatched, watched }) {
     onAddWatched(newWatchedMovie);
     onCloseMovie();
   }
+
+  useEffect(() => {
+    function callback(e) {
+      if (e.code === "Escape") {
+        onCloseMovie();
+      }
+    }
+    document.addEventListener("keydown", callback);
+
+    return function () {
+      document.removeEventListener("keydown", callback);
+    };
+  }, [onCloseMovie]);
 
   useEffect(() => {
     async function getMovieDetails() {
@@ -410,7 +418,6 @@ function WatchedList({ watched, onDeleteWatched }) {
 }
 
 function WatchedMovie({ movie, onDeleteWatched }) {
-  console.log(movie);
   return (
     <li key={movie.imdbID}>
       <img src={movie.poster} alt={`${movie.title} poster`} />
